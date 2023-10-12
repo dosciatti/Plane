@@ -49,24 +49,30 @@ var animatedSprite = {
 }
 
 var plane = {
-	position : { x : canvas.width / 2, y : canvas.height / 2 },
+	vPosition : { x : canvas.width / 2, y : canvas.height / 2 },
 	angle : 0,
 	deltaAngle : 0.025,
 	velocity : 0,
 	deltaVelocity : 0.025,
-	scale : 0.55, 
+	scale : 0.55,
+	radius : 
+	0.5 * 
+	Math.pow(
+	Math.pow(resourcesInfo.find(r => r.name === 'plane').width, 2) + 
+	Math.pow(resourcesInfo.find(r => r.name === 'plane').height, 2), 
+	0.5),
 	'draw' : function () {
-		var xmap = arena.getMapFromBoxX(plane.position.x)
-		var ymap = arena.getMapFromBoxY(plane.position.y)
+		var xmap = arena.getMapFromBoxX(plane.vPosition.x)
+		var ymap = arena.getMapFromBoxY(plane.vPosition.y)
 		engine.draw.drawImageByName(xmap, ymap, "plane", plane.scale * 0.2, plane.angle + Math.PI / 2)
 		
-		var x = arena.getViewFromClipX(plane.position.x)
-		var y = arena.getViewFromClipY(plane.position.y)
+		var x = arena.getViewFromClipX(plane.vPosition.x)
+		var y = arena.getViewFromClipY(plane.vPosition.y)
 		engine.draw.drawImageByName(x, y, "plane", plane.scale, plane.angle + Math.PI / 2)
 	},
 	'move' : function() { 
-		plane.position.x = plane.position.x + plane.velocity * Math.cos(-plane.angle)
-		plane.position.y = plane.position.y - plane.velocity * Math.sin(-plane.angle)
+		plane.vPosition.x = plane.vPosition.x + plane.velocity * Math.cos(-plane.angle)
+		plane.vPosition.y = plane.vPosition.y - plane.velocity * Math.sin(-plane.angle)
 		arena.actualizeArenaClipCoordinates()
 	},
 	'increaseAngle' : function () {
@@ -84,15 +90,21 @@ var plane = {
 }
 
 var hearts = {
-	//heartsNumber : 100,
-	vHearts : [{ x : 0, y: 0, intercepted : false }],
+	scale : 1,
+	radius : 
+	0.5 * 
+	Math.pow(
+	Math.pow(resourcesInfo.find(r => r.name === 'heart').width, 2) + 
+	Math.pow(resourcesInfo.find(r => r.name === 'heart').height, 2), 
+	0.5),
+	vHearts : [{ vPosition : { x : 0, y: 0 }, intercepted : false }],
 	'populate' : function() {
 		for (let i = 0; i < 10; i++) {
 			for (let j = 0; j < 10; j++) {
-				var v1 = [{ x: -40 * i, y : -40 * j, intercepted : false }]
-				var v2 = [{ x: -50 * i, y : -50 * j, intercepted : false }]
-				var v3 = [{ x: -60 * i, y : -60 * j, intercepted : false }]
-				var v4 = [{ x: -70 * i, y : -70 * j, intercepted : false }]
+				var v1 = [{ vPosition : { x: -60 * i, y : -60 * j }, intercepted : false }]
+				var v2 = [{ vPosition : { x: -60 * i, y : 60 * j }, intercepted : false }]
+				var v3 = [{ vPosition : { x: 60 * i, y : -60 * j }, intercepted : false }]
+				var v4 = [{ vPosition : { x: 60 * i, y : 60 * j }, intercepted : false }]
 				hearts.vHearts = hearts.vHearts.concat(v1)
 				hearts.vHearts = hearts.vHearts.concat(v2)
 				hearts.vHearts = hearts.vHearts.concat(v3)
@@ -106,12 +118,12 @@ var hearts = {
 			//engine.draw.drawImageByName(arena.getX(hearts.vHearts[i].x), arena.getY(hearts.vHearts[i].y), "heart", 1, 0)
 			//}
 			
-			var x = arena.getViewFromClipX(hearts.vHearts[i].x)
-			var y = arena.getViewFromClipY(hearts.vHearts[i].y)
-			engine.draw.drawImageByName(x, y, "heart", hearts.vHearts[i].scale, 0)
+			var x = arena.getViewFromClipX(hearts.vHearts[i].vPosition.x)
+			var y = arena.getViewFromClipY(hearts.vHearts[i].vPosition.y)
+			engine.draw.drawImageByName(x, y, "heart", hearts.scale, 0)
 			
-			var xmap = arena.getMapFromBoxX(hearts.vHearts[i].x)
-			var ymap = arena.getMapFromBoxY(hearts.vHearts[i].y)
+			var xmap = arena.getMapFromBoxX(hearts.vHearts[i].vPosition.x)
+			var ymap = arena.getMapFromBoxY(hearts.vHearts[i].vPosition.y)
 			engine.draw.drawImageByName(xmap, ymap, "heart", 0.25, 0)
 		}	
 	}
@@ -135,10 +147,10 @@ var arena = {
 		return Math.floor(((arena.clip.y1 - arena.clip.y0) / (arena.view.y1 - arena.view.y0)) * (clipPositionY - arena.clip.y0) - arena.view.y0)
 	},
 	'actualizeArenaClipCoordinates' : function () {
-		arena.clip.x0 = plane.position.x - canvas.width / 2 
-		arena.clip.x1 = plane.position.x + canvas.width / 2
-		arena.clip.y0 = plane.position.y - canvas.height / 2 
-		arena.clip.y1 = plane.position.y + canvas.height / 2
+		arena.clip.x0 = plane.vPosition.x - canvas.width / 2 
+		arena.clip.x1 = plane.vPosition.x + canvas.width / 2
+		arena.clip.y0 = plane.vPosition.y - canvas.height / 2 
+		arena.clip.y1 = plane.vPosition.y + canvas.height / 2
 	}
 }
 
